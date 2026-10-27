@@ -1,0 +1,248 @@
+/* ── Nav shell ──────────────────────────────────────────────────────────────── */
+.nav {
+  flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  z-index: 10;
+}
+
+.fadeOverlay {
+  position: absolute;
+  top: 0;
+  right: 42px;
+  height: 100%;
+  width: 40px;
+  background: linear-gradient(to right, transparent, var(--surface));
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Horizontal scroll container */
+.track {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 4px;
+  padding: 5px 10px;
+}
+.track::-webkit-scrollbar { display: none; }
+.track { cursor: grab; }
+.track.dragging { cursor: grabbing; }
+.track.dragging * { pointer-events: none; }
+
+.collapseWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: 0 8px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-3);
+  font-size: 11px;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+}
+.collapseWrap:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ── Compact single-row tab ──────────────────────────────────────────────────── */
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  min-width: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text-2);
+  font-family: var(--sans);
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.tab:hover {
+  background: var(--surface2);
+  border-color: var(--border2);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--bcolor) 40%, transparent);
+}
+
+.tab.active {
+  background: var(--bdim, rgba(63,185,80,0.10));
+  border-color: color-mix(in srgb, var(--bcolor) 35%, transparent);
+  box-shadow:
+    inset 3px 0 0 var(--bcolor),
+    inset 0 0 0 1px color-mix(in srgb, var(--bcolor) 15%, transparent);
+}
+
+/* Icon */
+.icon {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Name — takes remaining horizontal space */
+.name {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  color: var(--text);
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+.tab.active .name { color: var(--bcolor, var(--text)); }
+
+/* Info icon with tooltip */
+.infoBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  cursor: default;
+  position: relative;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.infoBtn:hover {
+  color: var(--text-2);
+}
+
+.activeTooltip {
+  position: absolute;
+  transform: translateX(-50%);
+  background: var(--surface3);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--border2);
+  white-space: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  animation: tooltipFadeIn 0.1s ease forwards;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-2px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Count chip: "X/Y · N%" inline */
+.countChip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-3);
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.tab.active .countChip {
+  background: color-mix(in srgb, var(--bcolor) 12%, var(--surface2));
+  border-color: color-mix(in srgb, var(--bcolor) 30%, transparent);
+  color: var(--bcolor);
+}
+
+.countDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--text-3);
+  flex-shrink: 0;
+}
+.tab.active .countDot {
+  background: var(--bcolor);
+}
+
+/* Bundle reset button */
+.bundleResetBtn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-3);
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  opacity: 0;
+  transition: color 0.12s, background 0.12s, opacity 0.15s;
+}
+.tab:hover .bundleResetBtn { opacity: 1; }
+.bundleResetBtn:hover {
+  color: var(--red);
+  background: var(--red-dim);
+}
+
+/* Start Exam button */
+.examBtn {
+  flex-shrink: 0;
+  background: var(--blue-dim);
+  border: 1px solid color-mix(in srgb, var(--blue) 35%, transparent);
+  color: var(--blue);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--sans);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.tab:hover .examBtn { opacity: 1; }
+.examBtn:hover { background: var(--blue); color: #fff; transform: scale(1.05); }
+
+/* In-exam badge */
+.examBadge {
+  flex-shrink: 0;
+  background: rgba(252,196,25,0.15);
+  border: 1px solid rgba(252,196,25,0.35);
+  color: var(--amber);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Locked tab during exam */
+.tab.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}

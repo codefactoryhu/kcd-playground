@@ -1,0 +1,11 @@
+{
+  "id": "conference",
+  "name": "Conference",
+  "icon": "🎪",
+  "tagline": "The same hands-on playground for every visitor",
+  "color": "#f59e0b",
+  "colorDim": "rgba(245,158,11,0.12)",
+  "bundle_ids": [
+    "conference"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "conference",
+  "name": "Conference Playground",
+  "icon": "🎪",
+  "tagline": "Fix-the-bug challenges for conference visitors",
+  "color": "#f59e0b",
+  "colorDim": "rgba(245,158,11,0.12)",
+  "exam_minutes": 45,
+  "scenario_ids": [
+    "broken-deployment",
+    "crashloop-fix",
+    "pending-pod-debug-task",
+    "endpoint-fix-task",
+    "multi-fault-webapp-debug"
+  ]
+}

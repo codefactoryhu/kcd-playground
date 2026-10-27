@@ -1,0 +1,71 @@
+{
+  "id": "multi-fault-webapp-debug",
+  "title": "Debug an Unreachable Web App",
+  "category": "Troubleshooting",
+  "difficulty": "Hard",
+  "type": "task",
+  "weight": 10,
+  "description": "## Debug an Unreachable Web App\n\nA web application has been deployed to the `webshop` namespace, but it is completely unreachable through its Service. The platform team reports that the Service `web` returns no endpoints and the pods never become Ready.\n\n**There is more than one thing wrong.** You must find and fix every fault so that:\n\n- the `web` Deployment has **all 3 pods in Ready state**, and\n- the `web` Service has **live endpoints** backing it.\n\n```bash\n# Start your investigation:\nkubectl get all -n webshop\nkubectl describe deployment web -n webshop\nkubectl describe pod -n webshop -l app=web\nkubectl get endpoints web -n webshop\n```\n\n> \uD83D\uDCA1 Work layer by layer: are the pods Ready? If not, why? Then — does the Service actually select the pods, and does it target the right container port?",
+  "hints": [
+    {
+      "title": "Why are the pods not Ready?",
+      "body": "Describe a pod and read the Events and the readiness probe section. The readiness probe is checking an HTTP path that the nginx image does not serve, so the probe never succeeds and the pod stays un-Ready. Point the probe at a path that returns 200 (the nginx root path).",
+      "command": "kubectl describe pod -n webshop -l app=web | grep -A15 'Readiness\\|Events'"
+    },
+    {
+      "title": "Fix the readiness probe path",
+      "body": "Patch the deployment so the readiness probe uses the root path '/' instead of the missing '/healthz' endpoint.",
+      "command": "kubectl patch deployment web -n webshop --type=json -p='[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/readinessProbe/httpGet/path\",\"value\":\"/\"}]'"
+    },
+    {
+      "title": "Why does the Service have no endpoints?",
+      "body": "Compare the Service spec against the pods. The Service targetPort points at a port the container does not expose. The pods serve on container port 80, but the Service forwards traffic to the wrong targetPort, so even Ready pods are never registered as usable endpoints.",
+      "command": "kubectl get svc web -n webshop -o jsonpath='{.spec.ports}' && echo && kubectl get pod -n webshop -l app=web -o jsonpath='{.items[0].spec.containers[0].ports}'"
+    },
+    {
+      "title": "Fix the Service targetPort",
+      "body": "Patch the Service so its targetPort matches the container port 80.",
+      "command": "kubectl patch service web -n webshop --type=json -p='[{\"op\":\"replace\",\"path\":\"/spec/ports/0/targetPort\",\"value\":80}]'"
+    }
+  ],
+  "setup_commands": [
+    {
+      "command": "kubectl create namespace webshop"
+    },
+    {
+      "command": "kubectl apply -n webshop -f - <<EOF\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\n  labels:\n    app: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:1.25\n        ports:\n        - containerPort: 80\n        readinessProbe:\n          httpGet:\n            path: /healthz\n            port: 80\n          initialDelaySeconds: 2\n          periodSeconds: 3\nEOF"
+    },
+    {
+      "command": "kubectl apply -n webshop -f - <<EOF\napiVersion: v1\nkind: Service\nmetadata:\n  name: web\nspec:\n  selector:\n    app: web\n  ports:\n  - port: 80\n    targetPort: 8080\nEOF"
+    }
+  ],
+  "validation": {
+    "description": "Checks that the web deployment is fully Ready and the Service has live endpoints.",
+    "commands": [
+      {
+        "description": "Deployment 'web' has 3 ready replicas",
+        "command": "kubectl get deployment web -n webshop -o jsonpath='{.status.readyReplicas}' 2>/dev/null | grep -v '^$' || echo 0",
+        "expected_output": "3",
+        "match": "exact"
+      },
+      {
+        "description": "Service 'web' targetPort points at container port 80",
+        "command": "kubectl get svc web -n webshop -o jsonpath='{.spec.ports[0].targetPort}'",
+        "expected_output": "80",
+        "match": "exact"
+      },
+      {
+        "description": "Service 'web' has at least one live endpoint address",
+        "command": "kubectl get endpoints web -n webshop -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null | grep -v '^$' || echo empty",
+        "expected_output": "empty",
+        "match": "not_contains"
+      }
+    ]
+  },
+  "default_namespace": "webshop",
+  "teardown_commands": [
+    {
+      "command": "kubectl delete namespace webshop --ignore-not-found --wait=false"
+    }
+  ]
+}
