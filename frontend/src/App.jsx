@@ -260,9 +260,9 @@ export default function App() {
       {examModalBundle && (
         <ExamStartModal
           bundle={examModalBundle}
-          onStart={(mins, count) => {
+          onStart={(mins, count, participantName) => {
             setExamModalBundle(null)
-            startExam(examModalBundle.id, mins, count)
+            startExam(examModalBundle.id, mins, count, participantName)
           }}
           onCancel={() => setExamModalBundle(null)}
         />

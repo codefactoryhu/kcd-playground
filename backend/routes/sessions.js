@@ -36,16 +36,19 @@ function createSessionsRouter({ loadProgress }) {
 
   // POST /api/sessions — start a new exam session
   router.post('/', (req, res) => {
-    const { bundleId, examMinutes, scenarioCount } = req.body;
+    const { bundleId, examMinutes, scenarioCount, participantName } = req.body;
     const bundle = loadBundles().find(b => b.id === bundleId);
     if (!bundle) return res.status(404).json({ error: 'Bundle not found' });
+
+    const name = String(participantName || '').trim();
+    if (!name) return res.status(400).json({ error: 'Participant name is required' });
 
     const mins             = Math.max(5, Math.min(300, Number(examMinutes) || bundle.exam_minutes || 120));
     const allIds           = bundle.scenario_ids || [];
     const count            = Math.max(1, Math.min(allIds.length, Number(scenarioCount) || allIds.length));
     const sessionScenarioIds = shuffle(allIds).slice(0, count);
 
-    const session = createSession(bundleId, mins, sessionScenarioIds);
+    const session = createSession(bundleId, mins, sessionScenarioIds, name);
     res.json(session);
   });
 
@@ -85,6 +88,7 @@ function createSessionsRouter({ loadProgress }) {
         id:             s.id,
         bundle_id:      s.bundle_id,
         bundle_name:    bundle?.name || s.bundle_id,
+        participant_name: s.participant_name || null,
         bundle_icon:    bundle?.icon || '🎓',
         status:         s.status,
         started_at:     s.started_at,

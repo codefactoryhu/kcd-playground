@@ -45,11 +45,11 @@ export function useExamSession({ bundles, refreshProgress, examSession, setExamS
   }, [])
 
   // ── Start a new exam session ───────────────────────────────────────────────
-  const startExam = useCallback(async (bundleId, customMinutes, customScenarioCount) => {
+  const startExam = useCallback(async (bundleId, customMinutes, customScenarioCount, participantName) => {
     await fetch('/api/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bundleId, examMinutes: customMinutes, scenarioCount: customScenarioCount }),
+      body: JSON.stringify({ bundleId, examMinutes: customMinutes, scenarioCount: customScenarioCount, participantName }),
     }).then(r => r.json())
     const active = await fetch('/api/sessions/active').then(r => r.json())
     setExamSession(active)

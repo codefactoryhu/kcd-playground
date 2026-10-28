@@ -64,6 +64,7 @@ function AttemptListItem({ attempt, active, onClick }) {
       <div className={styles.listItemLeft}>
         <span className={styles.listIcon}>{attempt.bundle_icon}</span>
         <div className={styles.listMeta}>
+          <span className={styles.listName}>{attempt.participant_name || '—'}</span>
           <span className={styles.listBundle}>{attempt.bundle_name}</span>
           <span className={styles.listDate}>{formatDate(attempt.started_at)}</span>
         </div>
@@ -113,6 +114,7 @@ function AttemptDetail({ attempt }) {
         <div>
           <div className={styles.detailLabel}>Exam Report</div>
           <div className={styles.detailBundle}>{attempt.bundle_name}</div>
+          <div className={styles.detailName}>{attempt.participant_name || '—'}</div>
         </div>
         <div className={styles.detailDates}>
           <span className={styles.detailDateRow}>

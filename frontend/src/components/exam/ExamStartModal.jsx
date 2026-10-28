@@ -3,6 +3,7 @@ import styles from './ExamStartModal.module.css'
 
 export default function ExamStartModal({ bundle, onStart, onCancel }) {
   const totalScenarios = bundle?.scenario_ids?.length || 0
+  const [name, setName] = useState('')
   const [minutes, setMinutes] = useState(bundle?.exam_minutes || 120)
   const [scenarioCount, setScenarioCount] = useState(totalScenarios)
   const inputRef = useRef(null)
@@ -13,7 +14,7 @@ export default function ExamStartModal({ bundle, onStart, onCancel }) {
   }, [bundle])
 
   useEffect(() => {
-    // Focus duration input on open
+    // Focus participant name input on open
     const t = setTimeout(() => inputRef.current?.select(), 60)
     return () => clearTimeout(t)
   }, [])
@@ -22,13 +23,14 @@ export default function ExamStartModal({ bundle, onStart, onCancel }) {
 
   const numMinutes = Number(minutes)
   const numScenarios = Number(scenarioCount)
+  const isNameValid = name.trim().length > 0
   const isMinutesValid = numMinutes >= 5 && numMinutes <= 300
   const isScenariosValid = numScenarios >= 1 && numScenarios <= totalScenarios
-  const isValid = isMinutesValid && isScenariosValid
+  const isValid = isNameValid && isMinutesValid && isScenariosValid
 
   const handleStart = () => {
     if (!isValid) return
-    onStart(numMinutes, numScenarios)
+    onStart(numMinutes, numScenarios, name.trim())
   }
 
   const presets = [
@@ -50,6 +52,25 @@ export default function ExamStartModal({ bundle, onStart, onCancel }) {
         </div>
 
         <div className={styles.body}>
+          {/* Participant name field */}
+          <div className={styles.field}>
+            <label className={styles.label}>Participant Name</label>
+            <input
+              ref={inputRef}
+              type="text"
+              className={`${styles.input} ${styles.nameInput}`}
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Enter your name"
+              onKeyDown={e => e.key === 'Enter' && handleStart()}
+            />
+            <div className={styles.hint}>
+              {!isNameValid && (
+                <span style={{ color: 'var(--red)' }}>⚠ Enter a participant name</span>
+              )}
+            </div>
+          </div>
+
           <div className={styles.info}>
             <span>📋</span>
             <span>{totalScenarios} scenarios · Recommended: <strong>{bundle.exam_minutes} min</strong></span>
@@ -72,7 +93,6 @@ export default function ExamStartModal({ bundle, onStart, onCancel }) {
             </div>
             <div className={styles.customRow}>
               <input
-                ref={inputRef}
                 type="number"
                 className={styles.input}
                 value={minutes}

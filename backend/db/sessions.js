@@ -9,10 +9,11 @@ const { getDb } = require('./index');
  * Returns the created session object.
  *
  * @param {string}   bundleId
- * @param {number}   mins          — exam duration in minutes
- * @param {string[]} scenarioIds   — pre-shuffled/sliced scenario id list
+ * @param {number}   mins             — exam duration in minutes
+ * @param {string[]} scenarioIds      — pre-shuffled/sliced scenario id list
+ * @param {string}   participantName  — required participant name for the session
  */
-function createSession(bundleId, mins, scenarioIds) {
+function createSession(bundleId, mins, scenarioIds, participantName) {
   const db = getDb();
 
   // Abandon any currently active session before starting a new one
@@ -20,11 +21,11 @@ function createSession(bundleId, mins, scenarioIds) {
               WHERE status='active'`).run();
 
   const id = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  db.prepare(`INSERT INTO sessions (id, bundle_id, started_at, status, exam_minutes, scenario_ids)
-              VALUES (?, ?, datetime('now'), 'active', ?, ?)`)
-    .run(id, bundleId, mins, JSON.stringify(scenarioIds));
+  db.prepare(`INSERT INTO sessions (id, bundle_id, started_at, status, exam_minutes, scenario_ids, participant_name)
+              VALUES (?, ?, datetime('now'), 'active', ?, ?, ?)`)
+    .run(id, bundleId, mins, JSON.stringify(scenarioIds), participantName);
 
-  return { id, bundleId, status: 'active', exam_minutes: mins, scenario_ids: scenarioIds };
+  return { id, bundleId, status: 'active', exam_minutes: mins, scenario_ids: scenarioIds, participant_name: participantName };
 }
 
 /**

@@ -150,6 +150,14 @@
 }
 .input:focus { border-color: var(--blue); }
 
+.nameInput {
+  width: 100%;
+  text-align: left;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 14px;
+}
+
 .unit {
   font-size: 13px;
   color: var(--text-3);

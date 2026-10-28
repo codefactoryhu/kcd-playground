@@ -60,7 +60,8 @@ function getDb() {
       exam_minutes  INTEGER NOT NULL DEFAULT 120,
       duration_secs INTEGER,
       snapshot      TEXT,
-      scenario_ids  TEXT
+      scenario_ids  TEXT,
+      participant_name TEXT
     )
   `);
 
@@ -69,6 +70,9 @@ function getDb() {
     const cols = _db.prepare('PRAGMA table_info(sessions)').all().map(c => c.name);
     if (!cols.includes('scenario_ids')) {
       _db.exec('ALTER TABLE sessions ADD COLUMN scenario_ids TEXT');
+    }
+    if (!cols.includes('participant_name')) {
+      _db.exec('ALTER TABLE sessions ADD COLUMN participant_name TEXT');
     }
   } catch (e) {
     console.error('Failed to migrate sessions table:', e.message);
